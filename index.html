@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokeShop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-ball"></span>
+        <span class="logo-text">Poke<strong>Shop</strong></span>
+      </div>
+      <button class="cart-btn" id="cartBtn" type="button">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        Koszyk
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-sub">Aplikacja sklepu internetowego</p>
+      <h1 class="hero-title">Znajdź produkty,<br /><em>porównaj i zamów</em></h1>
+      <p class="hero-desc">
+        Lista produktów, filtrowanie, sortowanie, szczegóły produktu, koszyk oraz formularz zamówienia w jednym miejscu.
+      </p>
+    </div>
+    <div class="hero-balls" aria-hidden="true">
+      <div class="ball b1"></div>
+      <div class="ball b2"></div>
+      <div class="ball b3"></div>
+    </div>
+  </section>
+
+  <main class="shop">
+    <div class="shop-header">
+      <div>
+        <h2>Produkty</h2>
+        <p class="shop-lead">Przeglądaj ofertę, zawężaj wyniki i przechodź do szczegółów wybranego produktu.</p>
+      </div>
+      <span class="product-count" id="productCount">Ładowanie produktów...</span>
+    </div>
+
+    <section class="toolbar" aria-label="Filtrowanie i sortowanie produktów">
+      <label class="filter-box filter-box-wide">
+        <span>Szukaj po nazwie</span>
+        <input type="search" id="searchInput" placeholder="Np. Pikachu, booster, mata" />
+      </label>
+
+      <label class="filter-box">
+        <span>Kategoria</span>
+        <select id="categoryFilter">
+          <option value="">Wszystkie kategorie</option>
+        </select>
+      </label>
+
+      <label class="filter-box filter-box-sm">
+        <span>Cena od</span>
+        <input type="number" id="minPriceFilter" min="0" step="1" placeholder="0" />
+      </label>
+
+      <label class="filter-box filter-box-sm">
+        <span>Cena do</span>
+        <input type="number" id="maxPriceFilter" min="0" step="1" placeholder="999" />
+      </label>
+
+      <label class="filter-box">
+        <span>Sortuj</span>
+        <select id="sortSelect">
+          <option value="default">Domyślnie</option>
+          <option value="name-asc">Nazwa A-Z</option>
+          <option value="name-desc">Nazwa Z-A</option>
+          <option value="price-asc">Cena rosnąco</option>
+          <option value="price-desc">Cena malejąco</option>
+          <option value="stock-desc">Największa dostępność</option>
+        </select>
+      </label>
+
+      <button class="secondary-btn" id="resetFilters" type="button">Wyczyść filtry</button>
+    </section>
+
+    <div class="filter-summary" id="filterSummary" aria-live="polite"></div>
+
+    <div class="product-grid" id="productGrid">
+      <div class="loading">
+        <div class="pokeball-loader"></div>
+        <p>Ładowanie produktów...</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar" aria-label="Koszyk">
+    <div class="cart-header">
+      <h3>Twój koszyk</h3>
+      <button class="close-btn" id="closeCart" type="button" aria-label="Zamknij koszyk">×</button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <div class="empty-cart">
+        <div class="empty-ball"></div>
+        <p>Koszyk jest pusty</p>
+      </div>
+    </div>
+
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="discount-row">
+        <input type="text" id="discountInput" placeholder="Kod rabatowy" aria-label="Kod rabatowy" />
+        <button id="applyDiscount" type="button">Użyj</button>
+      </div>
+      <div class="discount-msg" id="discountMsg"></div>
+
+      <div class="totals">
+        <div class="total-row">
+          <span>Suma produktów</span>
+          <span id="subtotal">0,00 zł</span>
+        </div>
+        <div class="total-row" id="deliveryLine">
+          <span>Dostawa</span>
+          <span id="deliveryValue">0,00 zł</span>
+        </div>
+        <div class="total-row discount-line" id="discountLine" style="display:none">
+          <span id="discountLabel">Rabat</span>
+          <span id="discountAmount">-0,00 zł</span>
+        </div>
+        <div class="total-row grand">
+          <span>Do zapłaty</span>
+          <span id="grandTotal">0,00 zł</span>
+        </div>
+      </div>
+
+      <p class="delivery-note" id="deliveryNote">Darmowa dostawa od 250,00 zł.</p>
+      <button class="checkout-btn" id="checkoutBtn" type="button">Przejdź do formularza</button>
+    </div>
+  </aside>
+
+  <div class="modal-overlay" id="detailsOverlay">
+    <div class="modal modal-wide" id="detailsModal">
+      <button class="modal-close" id="detailsClose" type="button" aria-label="Zamknij szczegóły produktu">×</button>
+      <div class="product-details" id="productDetailsContent"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal modal-large" id="checkoutModal">
+      <button class="modal-close" id="modalClose" type="button" aria-label="Zamknij formularz zamówienia">×</button>
+
+      <div class="modal-step" id="step1">
+        <h3>Formularz zamówienia</h3>
+        <p class="modal-intro">Uzupełnij dane klienta, sprawdź podsumowanie i złóż zamówienie.</p>
+
+        <div class="checkout-layout">
+          <section class="checkout-summary">
+            <h4>Podsumowanie koszyka</h4>
+            <div class="order-summary" id="orderSummary"></div>
+            <div class="order-line total-line">
+              <span>Suma produktów</span>
+              <strong id="modalSubtotal">0,00 zł</strong>
+            </div>
+            <div class="order-line total-line" id="modalDeliveryRow">
+              <span>Dostawa</span>
+              <strong id="modalDelivery">0,00 zł</strong>
+            </div>
+            <div class="order-line total-line discount-line" id="modalDiscountRow" style="display:none">
+              <span id="modalDiscountLabel">Rabat</span>
+              <strong id="modalDiscount">-0,00 zł</strong>
+            </div>
+            <div class="order-total-row">
+              <span>Łącznie:</span>
+              <strong id="modalTotal">0,00 zł</strong>
+            </div>
+          </section>
+
+          <form class="checkout-form" id="checkoutForm" novalidate>
+            <div class="form-grid">
+              <label class="form-field form-field-full">
+                <span>Imię i nazwisko</span>
+                <input type="text" id="fullName" name="fullName" placeholder="Jan Kowalski" />
+                <small class="form-error" data-error-for="fullName"></small>
+              </label>
+
+              <label class="form-field">
+                <span>Adres e-mail</span>
+                <input type="email" id="email" name="email" placeholder="jan@example.com" />
+                <small class="form-error" data-error-for="email"></small>
+              </label>
+
+              <label class="form-field">
+                <span>Telefon</span>
+                <input type="tel" id="phone" name="phone" inputmode="numeric" placeholder="123456789" />
+                <small class="form-error" data-error-for="phone"></small>
+              </label>
+
+              <label class="form-field form-field-full">
+                <span>Adres dostawy</span>
+                <input type="text" id="address" name="address" placeholder="ul. Kwiatowa 12/3" />
+                <small class="form-error" data-error-for="address"></small>
+              </label>
+
+              <label class="form-field">
+                <span>Miasto</span>
+                <input type="text" id="city" name="city" placeholder="Warszawa" />
+                <small class="form-error" data-error-for="city"></small>
+              </label>
+
+              <label class="form-field">
+                <span>Kod pocztowy</span>
+                <input type="text" id="postalCode" name="postalCode" inputmode="numeric" placeholder="00-000" />
+                <small class="form-error" data-error-for="postalCode"></small>
+              </label>
+
+              <label class="form-field">
+                <span>Metoda płatności</span>
+                <select id="paymentMethod" name="paymentMethod">
+                  <option value="blik">BLIK</option>
+                  <option value="card">Karta online</option>
+                  <option value="transfer">Przelew</option>
+                </select>
+                <small class="form-error" data-error-for="paymentMethod"></small>
+              </label>
+
+              <label class="form-field" id="blikField">
+                <span>Kod BLIK</span>
+                <input type="text" id="blikCode" name="blikCode" inputmode="numeric" maxlength="6" placeholder="123456" />
+                <small class="form-error" data-error-for="blikCode"></small>
+              </label>
+
+              <label class="form-field form-field-full">
+                <span>Uwagi do zamówienia</span>
+                <textarea id="notes" name="notes" rows="4" placeholder="Np. dostawa po 16:00"></textarea>
+                <small class="form-error" data-error-for="notes"></small>
+              </label>
+
+              <label class="checkbox-field form-field-full">
+                <input type="checkbox" id="terms" name="terms" />
+                <span>Potwierdzam poprawność danych i akceptuję warunki realizacji zamówienia.</span>
+              </label>
+              <small class="form-error form-error-full" data-error-for="terms"></small>
+            </div>
+
+            <button class="pay-btn" id="payBtn" type="submit">Złóż zamówienie</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-step hidden" id="step2">
+        <div class="success-icon">✓</div>
+        <h3>Zamówienie przyjęte</h3>
+        <p class="success-msg" id="successMessage">
+          Dziękujemy za złożenie zamówienia. Potwierdzenie zostało przygotowane.
+        </p>
+        <button class="pay-btn" id="doneBtn" type="button">Wróć do sklepu</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
