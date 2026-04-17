@@ -237,6 +237,24 @@ async function fetchProducts() {
   renderCatalog();
   updateCartUI();
 }
+async function syncOrderWithServer(entries) {
+  for (const item of entries) {
+    const response = await fetch(`${API_URL}/${item.id}/stock`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        quantity: item.qty,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Nie udało się zaktualizować stanu produktu ${item.name}.`);
+    }
+  }
+}
 
 function normalizeProducts(items) {
   if (!Array.isArray(items)) return [];
@@ -965,7 +983,7 @@ function updatePaymentFieldVisibility() {
   }
 }
 
-function handleCheckoutSubmit(event) {
+async function handleCheckoutSubmit(event) {
   event.preventDefault();
 
   const entries = getCartEntries();
@@ -987,10 +1005,9 @@ function handleCheckoutSubmit(event) {
   dom.payBtn.disabled = true;
   dom.payBtn.textContent = 'Przetwarzanie zamówienia...';
 
-  setTimeout(() => {
-    formState.isSubmitting = false;
-    dom.payBtn.disabled = false;
-    dom.payBtn.textContent = 'Złóż zamówienie';
+  try {
+    await syncOrderWithServer(entries);
+
     dom.step1.classList.add('hidden');
     dom.step2.classList.remove('hidden');
     dom.successMessage.textContent = `Dziękujemy, ${getFirstName(values.fullName)}. Potwierdzenie zamówienia o wartości ${fmt(totals.total)} zostało wysłane na adres ${values.email}.`;
@@ -1001,10 +1018,19 @@ function handleCheckoutSubmit(event) {
     dom.discountInput.value = '';
     setDiscountMessage('', 'ok');
     clearCheckoutForm();
+
+    await fetchProducts();
     updateCartUI();
     renderCatalog();
-  }, 1200);
+  } catch (error) {
+    showToast(error.message || 'Nie udało się zaktualizować magazynu.');
+  } finally {
+    formState.isSubmitting = false;
+    dom.payBtn.disabled = false;
+    dom.payBtn.textContent = 'Złóż zamówienie';
+  }
 }
+
 
 function finishCheckout() {
   closeCheckout();
